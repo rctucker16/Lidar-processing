@@ -1,0 +1,17 @@
+import geopandas as gpd
+
+# Load 21 study site boundaries (clipping mask)
+study_sites = gpd.read_file("data/21_study_sites.geojson")
+
+#  Load OS Open Greenspace dataset (e.g. GreenspaceSite layer)
+os_greenspace = gpd.read_file("data/OS_Open_Greenspace.gpkg", layer="GreenspaceSite")
+
+# Ensure CRS alignment (British National Grid)
+if os_greenspace.crs != study_sites.crs:
+    os_greenspace = os_greenspace.to_crs(study_sites.crs)
+
+# Clip OS Greenspace features to your 21 sites
+clipped_greenspace = os_greenspace.clip(study_sites)
+
+# Export for Oracle Spatial / FastAPI loading
+clipped_greenspace.to_file("data/clipped_os_greenspace.geojson", driver="GeoJSON")
